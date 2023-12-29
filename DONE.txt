@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    html,
+    body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100vh;
+      display: flex;
+      flex-direction: row;
+      justify-content: left;
+      align-items: top;
+      background: #070707;
+    }
+
+
+
+    .column {
+      flex: 1;
+      padding: 20px;
+      background-color: #101010;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .chapter-modal, .phrase-modal, .chapter-setting-modal, .phrase-setting-modal{
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      justify-content: center;
+      align-items: center;
+    }
+
+
+
+    #phrase-modal-content, #chapter-modal-content, #chapter-setting-modal-content, #phrase-setting-modal-content {
+      background: #000;
+      padding: 20px;
+      border-radius: 8px;
+    }
+
+    .button-container button {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        width: 500px;
+        height: 50px;
+        line-height: 50px;
+        margin-bottom: 20px;
+        border: none;
+        outline: none;
+        color: #3D4049;
+        background: #272B2E;
+        cursor: pointer;
+        position: relative;
+        z-index: 0;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        text-align: center;
+    }
+
+    .phraseButton{
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        width: 90%;
+        height: auto;
+        line-height: 15px;
+        margin-bottom: 10px;
+        margin: auto;
+        border: none;
+        outline: none;
+        color: #3D4049;
+        background: #272B2E;
+        cursor: pointer;
+        position: relative;
+        z-index: 0;
+        border-radius: 10px;
+        display: flex;
+        align-items: left;
+        justify-content: left;
+        font-size: 15px;
+        text-align: left;
+        padding: 15px;
+        overflow-wrap: break-word;
+    }
+    
+
+
+
+    .button-container button:before, .phraseButton:before {
+      content: '';
+      background: linear-gradient(45deg, #ff0000, #ff7300, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff, #ff00c8, #ff0000);
+      position: absolute;
+      top: -2px;
+      left: -2px;
+      background-size: 400%;
+      z-index: -1;
+      filter: blur(5px);
+      width: calc(100% + 4px);
+      height: calc(100% + 4px);
+      animation: glowing 20s linear infinite;
+      opacity: 0;
+      transition: opacity 0.3s ease-in-out;
+      border-radius: 10px;
+      word-wrap: break-word;
+      
+    }
+
+    .button-container button:active, .phraseButton:active {
+      color: #fff;
+    }
+
+    .button-container button:active:after, .phraseButton:active:after {
+      background: transparent;
+      
+    }
+
+    .button-container button:hover:before, .phraseButton:hover:before {
+      opacity: 1;
+    }
+
+    .button-container button:after, .phraseButton:after {
+      z-index: -1;
+      content: '';
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background: #101010;
+      left: 0;
+      top: 0;
+      border-radius: 10px;
+      border: 1px solid #3D4049;
+
+    }
+
+    @keyframes glowing {
+      0% {
+        background-position: 0 0;
+      }
+
+      50% {
+        background-position: 400% 0;
+      }
+
+      100% {
+        background-position: 0 0;
+      }
+    }
+    .button-container button:hover, .phraseButton:hover {
+        color: white;
+        transition: 0.3s ease;
+    }
+    #chapter-modal-content, #phrase-modal-content, #chapter-setting-modal-content, #phrase-setting-modal-content{
+        text-align: center;
+        background-color: #101010;
+        color: #E6E7E8;
+        font-size: 30px;
+        font-style: bold;
+        border-radius: 5px;
+    }
+    #inputNameSection, #inputPhrase, #changeNameSection, #changePhrase{
+        margin: 20px 0 10px 0;
+        background-color: #101010;
+        color: #E6E7E8;
+        border: 1px solid#3D4049;
+        outline: none;
+        border-radius: 5px;
+        width: 400px;
+        height: 40px;
+        font-size: 15px;
+        padding-left: 15px;
+    }
+    #inputPhrase, #changePhrase{
+        padding: 10px;
+        height: 100px;
+        resize: none;
+    }
+    .chapter-button, .phrase-button{
+        margin-bottom: 10px;
+        border-radius: 5px;
+        height: 40px;
+        border: none;
+    }
+    #chapterSaveButton, #phraseSaveButton{
+        border: 1px solid #22252F;
+        background-color: #3D4049;
+        color: #E6E7E8;
+        font-size: 15px;
+        transition: 0.3s ease;
+        width: 200px; /* Начальная ширина кнопки */
+    }
+    #chapterCancelButton, #phraseCancelButton {
+        background-color: rgba(0, 0, 0, 0);
+        border: 1px solid #3D4049;
+        color: #3D4049;
+        transition: 0.5s ease;
+    }
+
+    #chapterCancelButton:hover, #phraseCancelButton:hover {
+        background-color: white;
+        border: none;
+        color: #3D4049;
+        width: 62px;
+    }
+
+    #chapterSaveButton:hover, #phraseSaveButton:hover {
+        width: 340px; /* Конечная ширина кнопки при наведении */
+        border: none;
+        font-size: 15px;
+        background-color: #1CB0F6;
+        color: #E6E7E8;
+        transform: scale(1.010); /* Увеличение размера кнопки на 10% */
+    }
+    #chapterSaveSettingButton, #phraseSaveSettingButton{
+      border: none;
+      border-radius: 5px;
+      background-color: #3D4049;
+      color: #E6E7E8;
+      font-size: 15px;
+      transition: 0.3s ease;
+      height: 40px;
+      width: 270px;
+    }
+    #chapterSaveSettingButton:hover, #phraseSaveSettingButton:hover{
+      background-color: #1CB0F6;
+    }
+
+    #chapterCancelSettingButton, #phraseCancelSettingButton, #chapterDeleteSectionButton, #phraseDeleteSettingButton{
+      border-radius: 5px;
+      width: 65px;
+      background-color: transparent;
+      color: #3D4049;
+      border: 1px solid #22252F;
+      height: 40px;
+      transition: 0.5s ease;
+    }
+    #chapterCancelSettingButton:hover, #phraseCancelSettingButton:hover, #chapterDeleteSectionButton:hover, #phraseDeleteSettingButton:hover{
+      font: #3D4049;
+      border: none;
+      background-color: #E6E7E8;
+    }
+    .phraseSection{
+        margin-top: 10px;
+        background: transparent;
+        border: 1px solid #22252F;
+        border-radius: 10px;
+        width: 99%;
+        text-align: center;
+        height: auto;
+        padding-bottom: 20px;
+    }
+    .createPhraseButton, .settingSectionButton{
+        margin-top: 10px;
+        border-radius: 5px;
+        color: #22252F;
+        transition: .2s linear;
+        background: transparent;
+        border: 1px solid #22252F;
+        vertical-align: top;
+    }
+
+    .settingPhraseButton{
+        position: absolute;
+        top: 5px;
+        right: 1%;
+        border-radius: 5px;
+        border: 1px solid #22252F;
+        background-color: transparent;
+        color: #22252F;
+        z-index: 1;
+    }
+    .settingPhraseButton:hover{
+        color: #E6E7E8;
+        transition: .2s linear;
+        background: transparent;
+        border: 1px solid #E6E7E8;
+        z-index: 1;
+    }
+
+    .createPhraseButton:hover, .settingSectionButton:hover {
+        margin-top: 10px;
+        border-radius: 5px;
+        color: #E6E7E8;
+        transition: .2s linear;
+        background: transparent;
+        border: 1px solid #E6E7E8;
+    }
+
+    .sectionName{
+        font-size: 30px;
+        color: #E6E7E8;
+        margin-top: -25px;
+    }
+    .createPhraseButton{
+        margin-left: 85%;
+        margin-right: 10px;
+    }
+    
+    
+  </style>
+</head>
+
+<body>
+  <div class="column" id="left-column">
+    <div class="button-container">
+      <button class="glow-on-hover" onclick="chapterModalOpen('left-column')">Добавить раздел</button>
+    </div>
+  </div>
+
+  <div class="column" id="center-column">
+    <div class="button-container">
+      <button class="glow-on-hover" onclick="chapterModalOpen('center-column')">Добавить раздел</button>
+    </div>
+  </div>
+
+  <div class="column" id="right-column">
+    <div class="button-container">
+      <button class="glow-on-hover" onclick="chapterModalOpen('right-column')">Добавить раздел</button>
+    </div>
+  </div>
+
+  <!-- Модальное окно для добавления раздела -->
+  <div id="chapter-modal" class="chapter-modal">
+    <div id="chapter-modal-content">
+      <label for="inputNameSection">Введите название раздела</label>
+      <br>
+      <input type="text" id="inputNameSection">
+      <br>
+      <button class="chapter-button" id="chapterSaveButton">Сохранить</button>
+      <button class="chapter-button" id="chapterCancelButton">Отмена</button>
+    </div>
+  </div>
+
+  <!-- Модальное окно для настройки раздела -->
+  <div id="chapter-setting-modal" class="chapter-setting-modal">
+    <div id="chapter-setting-modal-content">
+      <label for="changeNameSection">Введите название раздела</label>
+      <br>
+      <input type="text" id="changeNameSection">
+      <br>
+      <button class="chapter-setting-button" id="chapterSaveSettingButton">Сохранить</button>
+      <button class="chapter-setting-button" id="chapterCancelSettingButton">Отмена</button>
+      <button class="chapter-setting-button" id="chapterDeleteSectionButton">Удалить</button>
+    </div>
+  </div>
+
+  <!-- Модальное окно для добавления фразы -->
+  <div id="phrase-modal" class="phrase-modal">
+    <div id="phrase-modal-content">
+      <label for="inputPhrase">Введите фразу</label>
+      <br>
+      <textarea id="inputPhrase"></textarea>
+      <br>
+      <button class="phrase-button" id="phraseSaveButton">Сохранить</button>
+      <button class="phrase-button" id="phraseCancelButton">Отмена</button>
+    </div>
+  </div>
+
+  <!-- Модальное окно для настройки фразы -->
+  <div id="phrase-setting-modal" class="phrase-setting-modal">
+    <div id="phrase-setting-modal-content">
+      <label for="changePhrase">Введите фразу</label>
+      <br>
+      <textarea id="changePhrase"></textarea>
+      <br>
+      <button class="phrase-setting-button" id="phraseSaveSettingButton">Сохранить</button>
+      <button class="phrase-setting-button" id="phraseCancelSettingButton">Отмена</button>
+      <button class="phrase-setting-button" id="phraseDeleteSettingButton">Удалить</button>
+    </div>
+  </div>
+
+  <script>
+
+    window.onload = function () {
+      loadData();
+      initEventListeners();
+    };
+    
+    function initEventListeners() {
+    const phraseButtons = document.querySelectorAll('.phraseButton');
+    phraseButtons.forEach(function (button) {
+      let isLongPress = false;
+      let timeout;
+      button.addEventListener('click', function (event) {
+        if (!isLongPress) {
+          event.preventDefault();
+          copyTextToClipboard(button.innerHTML);
+        }
+      });
+      button.addEventListener('mousedown', function () {
+        isLongPress = false;
+        timeout = setTimeout(function () {
+          isLongPress = true;
+          phraseSettingModalOpen(button);
+        }, 1000);
+      });
+      button.addEventListener('mouseup', function () {
+        clearTimeout(timeout);
+      });
+      button.addEventListener('mouseleave', function () {
+        clearTimeout(timeout);
+      });
+    });
+
+    const createPhraseButton = document.querySelectorAll('.createPhraseButton');
+    createPhraseButton.forEach(function (button) {
+      button.addEventListener('click', function () {
+        phraseModalOpen(button.parentNode);
+      });
+    });
+    
+    const settingSectionButton = document.querySelectorAll('.settingSectionButton');
+    settingSectionButton.forEach(function (button) {
+      button.addEventListener('click', function () {
+        chapterSettingModalOpen(button.parentNode.querySelector('.sectionName'), button.parentNode);
+      });
+    });
+  }
+
+    function loadData() {
+      const leftColumnHTML = localStorage.getItem('leftColumn');
+      const centerColumnHTML = localStorage.getItem('centerColumn');
+      const rightColumnHTML = localStorage.getItem('rightColumn');
+
+      if (leftColumnHTML) document.getElementById('left-column').innerHTML = leftColumnHTML;
+      if (centerColumnHTML) document.getElementById('center-column').innerHTML = centerColumnHTML;
+      if (rightColumnHTML) document.getElementById('right-column').innerHTML = rightColumnHTML;
+    }
+    function saveData() {
+      const leftColumnHTML = document.getElementById('left-column').innerHTML;
+      const centerColumnHTML = document.getElementById('center-column').innerHTML;
+      const rightColumnHTML = document.getElementById('right-column').innerHTML;
+
+      localStorage.setItem('leftColumn', leftColumnHTML);
+      localStorage.setItem('centerColumn', centerColumnHTML);
+      localStorage.setItem('rightColumn', rightColumnHTML);
+    }
+    function chapterModalOpen(idColumn) {
+      const modal = document.getElementById('chapter-modal');
+      modal.style.display = 'flex';
+      document.getElementById('chapterSaveButton').onclick = function(){
+        createNewSection(idColumn);
+      };
+      document.getElementById('chapterCancelButton').onclick = function(){
+        chapterModalClose();
+      };
+    }
+    
+    function chapterSettingModalOpen(newHeading, idSection) {
+      const modal = document.getElementById('chapter-setting-modal');
+      modal.style.display = 'flex';
+      document.getElementById('changeNameSection').value = newHeading.textContent;
+      document.getElementById('chapterSaveSettingButton').onclick = function(){
+        text = document.getElementById('changeNameSection').value;
+        changeSectionName(newHeading, text);
+        chapterSettingModalClose(newHeading);
+      };
+      document.getElementById('chapterCancelSettingButton').onclick = function(){
+        chapterSettingModalClose();
+      };
+      document.getElementById('chapterDeleteSectionButton').onclick = function(){
+        deleteSection(idSection);
+      };
+    }
+
+    function phraseModalOpen(idSection) {
+      const modal = document.getElementById('phrase-modal');
+      modal.style.display = 'flex';
+      document.getElementById('phraseSaveButton').onclick = function(){
+        const text = document.getElementById('inputPhrase').value;
+        addPhraseToSection(idSection, text);
+        phraseModalClose();
+      };
+      document.getElementById('phraseCancelButton').onclick = function(){
+        phraseModalClose();
+      };
+    }
+
+    function phraseSettingModalOpen(idPhrase) {
+      const modal = document.getElementById('phrase-setting-modal');
+      modal.style.display = 'flex';
+      document.getElementById('changePhrase').value = idPhrase.innerHTML.replace(/<br>/g, '\n');
+      
+      document.getElementById('phraseCancelSettingButton').onclick = function(){
+        phraseSettingModalClose();
+      }
+      document.getElementById('phraseDeleteSettingButton').onclick = function(){
+        deletePhrase(idPhrase);
+      }
+      document.getElementById('phraseSaveSettingButton').onclick = function(){
+        text = document.getElementById('changePhrase').value;
+        changePhraseText(idPhrase, text);
+      };
+    }
+    function changePhraseText(idPhrase, text){
+        idPhrase.textContent = '';
+        idPhrase.innerHTML += text.replace(/\n/g, '<br>');
+        phraseSettingModalClose();
+    }
+
+    function createNewSection(idColumn){
+        const text = document.getElementById('inputNameSection').value
+        if(text.trim() != ''){
+            addSection(text, idColumn);
+            chapterModalClose();
+        }else{
+            alert('Введите название')
+        }
+    }
+    function deleteSection(idSection){
+        var divToRemove = idSection;
+        if(confirm('Вы уверены, что хотите удалить раздел?')){
+            divToRemove.remove();
+            chapterSettingModalClose();
+        }
+    }
+    function deletePhrase(idPhrase){
+        var divToRemove = idPhrase;
+        if(confirm('Вы уверены, что хотите удалить кнопку?')){
+            divToRemove.remove();
+            phraseSettingModalClose();
+        }
+    }
+    function changeSectionName(newHeading, text){
+        newHeading.textContent = text;
+    }
+    function addSection(sectionName, idColumn){
+        const newSection = document.createElement('div'); <!-- Создаем div-->
+        newSection.classList.add('phraseSection');
+        const newHeading = document.createElement('p');
+        newHeading.className = 'sectionName';
+
+
+        const createPhraseButton = document.createElement('button');
+        createPhraseButton.className = 'createPhraseButton';
+        createPhraseButton.textContent = "+"
+        createPhraseButton.onclick = function(){
+            phraseModalOpen(newSection);
+        }
+
+        const settingSectionButton = document.createElement('button');
+        settingSectionButton.className = 'settingSectionButton';
+        settingSectionButton.textContent = "..."
+        settingSectionButton.onclick = function(){
+            chapterSettingModalOpen(newHeading, newSection);
+        }
+
+        newHeading.textContent = sectionName;
+        
+        newSection.appendChild(createPhraseButton);
+        newSection.appendChild(settingSectionButton);
+        newSection.appendChild(newHeading);
+        
+        settingSectionButton.appendChild(document.createElement('br'))
+        const parentElement = document.getElementById(idColumn);
+        parentElement.appendChild(newSection);
+        
+
+    }
+    function addPhraseToSection(idSection, text){
+        const phraseButton = document.createElement('button');
+        phraseButton.classList.add('phraseButton');
+
+        phraseButton.innerHTML += text.replace(/\n/g, '<br>');
+        idSection.appendChild(phraseButton);
+        idSection.appendChild(document.createElement('br'));
+
+        phraseButton.onclick = function(){
+            copyTextToClipboard(text);
+        }
+    }
+    function copyTextToClipboard(text) {
+  // Replace <br> with a newline character
+      const textWithLineBreaks = text.replace(/<br>/g, '\n');
+
+      const dummy = document.createElement('textarea');
+      document.body.appendChild(dummy);
+
+      dummy.textContent = textWithLineBreaks;
+      dummy.select();
+      document.execCommand('copy');
+      document.body.removeChild(dummy);
+    }
+
+    
+    function chapterModalClose() {
+        const modal = document.getElementById('chapter-modal');
+        document.getElementById('inputNameSection').value = '';
+        modal.style.display = 'none';
+        saveData();
+    }
+    function chapterSettingModalClose() {
+        const modal = document.getElementById('chapter-setting-modal');
+        modal.style.display = 'none';
+        saveData();
+    }
+    function phraseSettingModalClose() {
+        const modal = document.getElementById('phrase-setting-modal');
+        modal.style.display = 'none';
+        saveData();
+    }
+
+    function phraseModalClose() {
+        const modal = document.getElementById('phrase-modal');
+        document.getElementById('inputPhrase').value = '';
+        modal.style.display = 'none';
+        saveData();
+    }
+    
+  </script>
+</body>
+
+</html>
