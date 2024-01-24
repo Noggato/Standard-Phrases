@@ -396,22 +396,52 @@
       });
     });
   }
-    function loadData() {
-      const leftColumnHTML = localStorage.getItem('leftColumn');
-      const centerColumnHTML = localStorage.getItem('centerColumn');
-      const rightColumnHTML = localStorage.getItem('rightColumn');
+      function loadData() {
+      const savedData = localStorage.getItem('savedData');
+      if (savedData) {
+        parseAndLoadData(savedData);
+      }
+    }
+
+    function parseAndLoadData(data) {
+      const parsedData = JSON.parse(data);
+
+      const leftColumnHTML = parsedData.leftColumn;
+      const centerColumnHTML = parsedData.centerColumn;
+      const rightColumnHTML = parsedData.rightColumn;
+
       if (leftColumnHTML) document.getElementById('left-column').innerHTML = leftColumnHTML;
       if (centerColumnHTML) document.getElementById('center-column').innerHTML = centerColumnHTML;
       if (rightColumnHTML) document.getElementById('right-column').innerHTML = rightColumnHTML;
     }
+
     function saveData() {
       const leftColumnHTML = document.getElementById('left-column').innerHTML;
       const centerColumnHTML = document.getElementById('center-column').innerHTML;
       const rightColumnHTML = document.getElementById('right-column').innerHTML;
-      localStorage.setItem('leftColumn', leftColumnHTML);
-      localStorage.setItem('centerColumn', centerColumnHTML);
-      localStorage.setItem('rightColumn', rightColumnHTML);
+
+      const data = {
+        leftColumn: leftColumnHTML,
+        centerColumn: centerColumnHTML,
+        rightColumn: rightColumnHTML,
+      };
+
+      const stringifiedData = JSON.stringify(data);
+      localStorage.setItem('savedData', stringifiedData);
+
+      saveDataToFile(stringifiedData);
     }
+
+    function saveDataToFile(data) {
+      const blob = new Blob([data], { type: 'application/json' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = 'savedData.json';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
     function chapterModalOpen(idColumn) {
       const modal = document.getElementById('chapter-modal');
       modal.style.display = 'flex';
